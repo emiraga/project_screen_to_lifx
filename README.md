@@ -7,3 +7,7 @@ Useful when watching movies, in order to create an atmosphere that is similar to
 ### Dependencies (`easy_install` or `pip`):
 
     easy_install click pyobjc lifxlan rumps
+
+### Demo (youtube video)
+
+[![Demo](https://img.youtube.com/vi/4cKENIZKDPQ/0.jpg)](https://www.youtube.com/watch?v=4cKENIZKDPQ)
