@@ -17,6 +17,8 @@ from lifxlan import LifxLAN
 
 import rumps
 
+TRANSITION_DURATION = 0.1
+
 
 def get_widest_display():
     total = 10
@@ -30,7 +32,9 @@ def get_widest_display():
 def drawImageToFile(image, path):
     dpi = 72 # FIXME: Should query this from somewhere, e.g for retina displays
     url = Cocoa.NSURL.fileURLWithPath_(path)
-    dest = Quartz.CGImageDestinationCreateWithURL(url, LaunchServices.kUTTypePNG, 1, None)
+    dest = Quartz.CGImageDestinationCreateWithURL(url,
+                                                  LaunchServices.kUTTypePNG, 1,
+                                                  None)
     properties = {
         Quartz.kCGImagePropertyDPIWidth: dpi,
         Quartz.kCGImagePropertyDPIHeight: dpi,
@@ -92,7 +96,7 @@ class LifxProjectionStatusBarApp(rumps.App):
             'Status',
         ]
         # click provides us with ability to set command line options,
-        # here we convert those options into UI elements in the menu. Pretty cool!
+        # here we convert those options into UI elements in the menu.
         self.opts = kwargs
         def set_opt_from_ui(opt):
             def inner(_):
@@ -113,7 +117,8 @@ class LifxProjectionStatusBarApp(rumps.App):
             )
 
         use_icon = self.ICON if os.path.exists(self.ICON) else None
-        super(LifxProjectionStatusBarApp, self).__init__("LIFX", icon=use_icon, menu=menu)
+        super(LifxProjectionStatusBarApp, self).__init__("LIFX", icon=use_icon,
+                                                         menu=menu)
 
         # defaults
         self.enable_lifx_projection = False
@@ -137,14 +142,16 @@ class LifxProjectionStatusBarApp(rumps.App):
                       int(color_scaled[1] * 65535),
                       int(color_scaled[2] * 65535),
                       self.opts['temperature']]
-        self.lifx.set_color_all_lights(color_lifx, duration=0.04, rapid=True)
+        self.lifx.set_color_all_lights(color_lifx,
+                                       duration=TRANSITION_DURATION * 0.9,
+                                       rapid=True)
 
     @rumps.clicked('Enable/disable LIFX color projection')
     def menu_enable_lifx_projection(self, sender):
         sender.state = not sender.state
         self.enable_lifx_projection = sender.state
 
-    @rumps.timer(0.05)
+    @rumps.timer(TRANSITION_DURATION)
     def projection_timer(self, timer):
         if self.enable_lifx_projection and self.lifx_found_any_lights:
             self._project_screenshot_to_lifx()
@@ -176,7 +183,8 @@ class LifxProjectionStatusBarApp(rumps.App):
             self.opts['temperature'],
             len(lights),
             '\n'.join(lights) if lights else 'No lights found'))
-        window = rumps.Window('', 'Status', default_text=status, dimensions=(700, 600))
+        window = rumps.Window('', 'Status', default_text=status,
+                              dimensions=(700, 600))
         window.run()
 
 
